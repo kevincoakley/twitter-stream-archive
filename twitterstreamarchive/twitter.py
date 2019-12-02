@@ -18,7 +18,6 @@ class MyStreamListener(tweepy.StreamListener):
         raw_data = twitterstreamarchive.transform_tweet.convert_created_at(raw_data)
         # Save tweet to disk
         twitterstreamarchive.file_writer.write_gzip(self.archive_path, raw_data)
-        pass
 
     def on_exception(self, exception):
         logging.info("Unhandled tweepy exception: %s", exception)

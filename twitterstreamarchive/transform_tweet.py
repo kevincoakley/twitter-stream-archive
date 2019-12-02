@@ -26,4 +26,4 @@ def convert_created_at(status):
     # Add the created_at_converted element to the json
     status_json["created_at_converted"] = created_at_converted
 
-    return json.dumps(status_json)
+    return json.dumps(status_json, ensure_ascii=False)
