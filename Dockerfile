@@ -7,4 +7,9 @@ WORKDIR /tmp/install
 RUN pip install -r requirements.txt
 RUN ./setup.py install
 
+RUN groupadd -g 999 twitter && \
+    useradd -r -u 999 -g twitter twitter
+
+USER twitter
+
 CMD twitter-stream-archive --debug
