@@ -39,4 +39,5 @@ Run twitter-stream-archive from a Docker container:
     -e STREAM_TRACK='track,terms' \
     -e STREAM_LOCATIONS='x1,y1,x2,y2' \
     -v '/local/path:/twitter-stream-archive/' \
+    -p 8000:8000 \
     twitter-stream-archive

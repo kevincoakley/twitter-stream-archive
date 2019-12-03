@@ -3,6 +3,7 @@
 try:
     from setuptools import setup
     extra = dict(install_requires=[
+        'prometheus-client>=0.7.1',
         'tweepy>=3.8.0',
     ],
         include_package_data=True,

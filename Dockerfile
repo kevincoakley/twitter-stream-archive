@@ -12,4 +12,6 @@ RUN groupadd -g 999 twitter && \
 
 USER twitter
 
+EXPOSE 8000
+
 CMD twitter-stream-archive --debug
