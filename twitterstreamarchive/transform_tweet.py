@@ -16,8 +16,8 @@ def convert_created_at(status):
         # Convert created_at_in_datetime object to the new format
         created_at_converted = created_at_in_datetime.strftime("%Y-%m-%d %H:%M:%S")
     else:
-        # If status is a delete status then just return status
-        if "delete" in status_json:
+        # If status is a delete or a status_withheld status then just return status
+        if "delete" in status_json or "status_withheld" in status_json:
             return status
         # If status is not a delete status then there is probably an error
         logging.info("Tweet does not have a created_at variable: %s", status)
@@ -26,4 +26,4 @@ def convert_created_at(status):
     # Add the created_at_converted element to the json
     status_json["created_at_converted"] = created_at_converted
 
-    return json.dumps(status_json)
+    return json.dumps(status_json, ensure_ascii=False)
