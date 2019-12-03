@@ -36,5 +36,7 @@ Run twitter-stream-archive from a Docker container:
     -e ACCESS_TOKEN='access-token' \
     -e ACCESS_TOKEN_SECRET='access-token' \
     -e ARCHIVE_PATH='/twitter-stream-archive/' \
+    -e STREAM_TRACK='track,terms' \
+    -e STREAM_LOCATIONS='x1,y1,x2,y2' \
     -v '/local/path:/twitter-stream-archive/' \
     twitter-stream-archive
