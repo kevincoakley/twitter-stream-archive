@@ -2,6 +2,7 @@
 
 import logging
 import tweepy
+from prometheus_client import Counter
 import twitterstreamarchive.file_writer
 import twitterstreamarchive.transform_tweet
 
@@ -12,12 +13,46 @@ class MyStreamListener(tweepy.StreamListener):
     def __init__(self, archive_path, api=None):
         super().__init__(api)
         self.archive_path = archive_path
+        # Initialize the Prometheus tweet_count counter
+        self.tweet_count = Counter("tweet_count", "Number of tweet_timeouts tweets")
+        self.tweet_disconnects = Counter("tweet_disconnects", "Number of twitter-stream-archive disconnects")
+        self.tweet_errors = Counter("tweet_errors", "Number of twitter-stream-archive errors")
+        self.tweet_exceptions = Counter("tweet_exceptions", "Number of twitter-stream-archive exceptions")
+        self.tweet_timeouts = Counter("tweet_timeouts", "Number of twitter-stream-archive timeouts")
+        self.tweet_warnings = Counter("tweet_warnings", "Number of twitter-stream-archive warnings")
 
     def on_data(self, raw_data):
+        # Increment Prometheus tweet_count counter by 1
+        self.tweet_count.inc()
         # Run tweet json transformations
         raw_data = twitterstreamarchive.transform_tweet.convert_created_at(raw_data)
         # Save tweet to disk
         twitterstreamarchive.file_writer.write_gzip(self.archive_path, raw_data)
+
+    def on_disconnect(self, notice):
+        # Increment Prometheus tweet_disconnects counter by 1
+        self.tweet_disconnects.inc()
+        return
+
+    def on_error(self, status_code):
+        # Increment Prometheus tweet_errors counter by 1
+        self.tweet_errors.inc()
+        return
+
+    def on_exception(self, exception):
+        # Increment Prometheus tweet_exceptions counter by 1
+        self.tweet_exceptions.inc()
+        return
+
+    def on_timeout(self):
+        # Increment Prometheus tweet_timeouts counter by 1
+        self.tweet_timeouts.inc()
+        return
+
+    def on_warning(self, notice):
+        # Increment Prometheus tweet_warnings counter by 1
+        self.tweet_warnings.inc()
+        return
 
 
 class Twitter:

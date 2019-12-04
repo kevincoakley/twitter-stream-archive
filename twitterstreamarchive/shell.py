@@ -3,6 +3,7 @@
 import sys
 import logging
 import twitterstreamarchive.arguments as arguments
+from prometheus_client import start_http_server
 from twitterstreamarchive.twitter import Twitter
 
 
@@ -37,6 +38,10 @@ def main():
     # Verify the archive path has been set
     if args["archive_path"] is None:
         sys.exit("The archive path must be set!")
+
+    # Start the Prometheus server on port 8000
+    logging.info("Starting the Prometheus server on port 8000")
+    start_http_server(8000)
 
     # Create a Twitter object and authenticate to Twitter's API
     twitter = Twitter(args["consumer_token"], args["consumer_token_secret"],

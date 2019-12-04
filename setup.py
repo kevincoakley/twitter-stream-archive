@@ -3,6 +3,7 @@
 try:
     from setuptools import setup
     extra = dict(install_requires=[
+        'prometheus-client>=0.7.1',
         'tweepy>=3.8.0',
     ],
         include_package_data=True,
@@ -19,7 +20,7 @@ def readme():
 
 
 setup(name="twitter-stream-archive",
-      version="0.1.0",
+      version="0.1.2",
       description="",
       long_description=readme(),
       author="Kevin Coakley",
