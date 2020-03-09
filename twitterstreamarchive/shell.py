@@ -8,6 +8,9 @@ from twitterstreamarchive.twitter import Twitter
 
 
 def main():
+    """
+    :return: 0 if successful otherwise return an error message as a string
+    """
     args = twitterstreamarchive.arguments.parse_arguments(sys.argv[1:])
 
     log_level = logging.INFO

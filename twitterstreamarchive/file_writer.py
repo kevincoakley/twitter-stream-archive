@@ -8,6 +8,10 @@ from twitterstreamarchive.exceptions import LocalFileException
 
 
 def write_gzip(path, status):
+    """
+    :param path: path to save the status
+    :param status: tweet json as string
+    """
 
     file_path = path + "/" + datetime.datetime.now().strftime("%Y%m%d-%H-tweets.txt.gz")
 
