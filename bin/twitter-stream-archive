@@ -1,8 +1,20 @@
 #!/usr/bin/env python
 
+import logging
 import sys
+from twitterstreamarchive.exceptions import LocalTwitterException
+from twitterstreamarchive.exceptions import LocalFileException
 
 from twitterstreamarchive.shell import main
 
+logger = logging.getLogger('twitterstreamarchive')
+
 if __name__ == "__main__":
-    sys.exit(main())
+    # Create infinite loop to restart the stream if there is an exception
+    while True:
+        try:
+            sys.exit(main())
+        except LocalTwitterException as ex:
+            logger.info("Exception: %s" % ex.msg)
+        except LocalFileException as ex:
+            logger.info("Exception: %s" % ex.msg)

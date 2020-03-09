@@ -20,7 +20,7 @@ def readme():
 
 
 setup(name="twitter-stream-archive",
-      version="0.1.3",
+      version="0.9.0",
       description="",
       long_description=readme(),
       author="Kevin Coakley",

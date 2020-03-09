@@ -5,12 +5,19 @@ import tweepy
 from prometheus_client import Counter
 import twitterstreamarchive.file_writer
 import twitterstreamarchive.transform_tweet
+from twitterstreamarchive.exceptions import LocalTwitterException
+
+logger = logging.getLogger('twitterstreamarchive.twitter')
 
 
 # override tweepy.StreamListener
 class MyStreamListener(tweepy.StreamListener):
 
     def __init__(self, archive_path, api=None):
+        """
+        :param archive_path: directory to save the twitter statuses to
+        :param api: tweepy API object (optional)
+        """
         super().__init__(api)
         self.archive_path = archive_path
         # Initialize the Prometheus tweet_count counter
@@ -22,34 +29,65 @@ class MyStreamListener(tweepy.StreamListener):
         self.tweet_warnings = Counter("tweet_warnings", "Number of twitter-stream-archive warnings")
 
     def on_data(self, raw_data):
+        """
+        Called when raw data is received from connection. Return False to stop stream and close connection.
+
+        :param raw_data: raw output from tweepy stream
+        """
         # Increment Prometheus tweet_count counter by 1
         self.tweet_count.inc()
         # Run tweet json transformations
         raw_data = twitterstreamarchive.transform_tweet.convert_created_at(raw_data)
         # Save tweet to disk
         twitterstreamarchive.file_writer.write_gzip(self.archive_path, raw_data)
+        return
 
     def on_disconnect(self, notice):
+        """Called when twitter sends a disconnect notice
+
+        Disconnect codes are listed here:
+        https://developer.twitter.com/en/docs/tweets/filter-realtime/guides/streaming-message-types
+
+        :param notice: disconnect notice string from tweepy
+        """
         # Increment Prometheus tweet_disconnects counter by 1
         self.tweet_disconnects.inc()
         return
 
     def on_error(self, status_code):
+        """
+        Called when a non-200 status code is returned
+
+        :param status_code: http status code from tweepy
+        """
         # Increment Prometheus tweet_errors counter by 1
         self.tweet_errors.inc()
         return
 
     def on_exception(self, exception):
+        """
+        Called when an unhandled exception occurs.
+
+        :param exception: exception from tweepy
+        """
         # Increment Prometheus tweet_exceptions counter by 1
         self.tweet_exceptions.inc()
         return
 
     def on_timeout(self):
+        """
+        Called when stream connection times out
+        """
         # Increment Prometheus tweet_timeouts counter by 1
         self.tweet_timeouts.inc()
         return
 
     def on_warning(self, notice):
+        """
+        Called when a disconnection warning message arrive
+
+        :param notice: warning notice string from tweepy
+        """
         # Increment Prometheus tweet_warnings counter by 1
         self.tweet_warnings.inc()
         return
@@ -58,6 +96,12 @@ class MyStreamListener(tweepy.StreamListener):
 class Twitter:
 
     def __init__(self, consumer_token, consumer_token_secret, access_token, access_token_secret):
+        """
+        :param consumer_token: twitter api consumer token
+        :param consumer_token_secret: twitter api consumer token secret
+        :param access_token: twitter api access token
+        :param access_token_secret: twitter api access token secret
+        """
         # Setup OAuth Authentication
         auth = tweepy.OAuthHandler(consumer_token, consumer_token_secret)
         auth.set_access_token(access_token, access_token_secret)
@@ -66,6 +110,11 @@ class Twitter:
         self.api = tweepy.API(auth)
 
     def stream(self, archive_path, track=None, locations=None):
+        """
+        :param archive_path: directory to save the twitter statuses to
+        :param track: list of keywords to filter (optional)
+        :param locations: list of lat/long box to filter (optional)
+        """
         my_stream_listener = MyStreamListener(archive_path)
         my_stream = tweepy.Stream(auth=self.api.auth, listener=my_stream_listener)
 
@@ -76,18 +125,16 @@ class Twitter:
         if locations:
             locations = [float(x) for x in locations.split(",")]
 
-        # Create infinite loop to restart the stream if there is an exception
-        while True:
-            # If track or locations is set then create a filtered stream, otherwise capture everything
-            if track or locations:
-                logging.debug("Collecting a filtered stream with track: %s and locations: %s", track, locations)
-                try:
-                    my_stream.filter(track=track, locations=locations, stall_warnings=True)
-                except Exception as ex:
-                    logging.error("Unhandled streaming exception: %s", ex)
-            else:
-                logging.debug("Collecting an unfiltered stream")
-                try:
-                    my_stream.sample(stall_warnings=True)
-                except Exception as ex:
-                    logging.error("Unhandled streaming exception: %s", ex)
+        # If track or locations is set then create a filtered stream, otherwise capture everything
+        if track or locations:
+            logger.debug("Collecting a filtered stream with track: %s and locations: %s", track, locations)
+            try:
+                my_stream.filter(track=track, locations=locations, stall_warnings=True)
+            except Exception as ex:
+                raise LocalTwitterException("Unhandled streaming exception: %s" % ex) from None
+        else:
+            logger.debug("Collecting an unfiltered stream")
+            try:
+                my_stream.sample(stall_warnings=True)
+            except Exception as ex:
+                raise LocalTwitterException("Unhandled streaming exception: %s" % ex) from None
