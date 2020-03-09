@@ -4,7 +4,12 @@ import os
 import argparse
 
 
-def parse_arguments():
+def parse_arguments(args):
+    """
+    Parse Commandline Arguments
+    :param args: *args positional arguments
+    :return: Commandline arguments parsed by argparse
+    """
     parser = argparse.ArgumentParser()
 
     parser.add_argument('--debug',
@@ -54,4 +59,4 @@ def parse_arguments():
                              "Filter.",
                         default=os.environ.get('STREAM_LOCATIONS', None))
 
-    return vars(parser.parse_args())
+    return parser.parse_args(args)
