@@ -5,8 +5,9 @@ import sys
 from twitterstreamarchive.exceptions import LocalTwitterException
 from twitterstreamarchive.exceptions import LocalFileException
 
-
 from twitterstreamarchive.shell import main
+
+logger = logging.getLogger('twitterstreamarchive')
 
 if __name__ == "__main__":
     # Create infinite loop to restart the stream if there is an exception
@@ -14,6 +15,6 @@ if __name__ == "__main__":
         try:
             sys.exit(main())
         except LocalTwitterException as ex:
-            logging.info("Exception: %s" % ex.msg)
+            logger.info("Exception: %s" % ex.msg)
         except LocalFileException as ex:
-            logging.info("Exception: %s" % ex.msg)
+            logger.info("Exception: %s" % ex.msg)

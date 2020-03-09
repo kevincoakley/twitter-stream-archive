@@ -15,18 +15,21 @@ def main():
     if args.debug is True:
         log_level = logging.DEBUG
 
-    logging.basicConfig(level=log_level,
-                        format='%(asctime)s %(levelname)s %(filename)s:%(lineno)d %(message)s',
-                        handlers=[logging.StreamHandler()])
+    logger = logging.getLogger('twitterstreamarchive')
+    logger.setLevel(level=log_level)
+    log_handler = logging.StreamHandler()
+    log_formatter = logging.Formatter('%(asctime)s %(levelname)s %(filename)s:%(lineno)d %(message)s')
+    log_handler.setFormatter(log_formatter)
+    logger.addHandler(log_handler)
 
     # Print all arguments for debugging purposes
-    logging.info("consumer_token: %s", args.consumer_token)
-    logging.info("consumer_token_secret: %s", args.consumer_token_secret)
-    logging.info("access_token: %s", args.access_token)
-    logging.info("access_token_secret: %s", args.access_token_secret)
-    logging.info("archive_path: %s", args.archive_path)
-    logging.info("stream_track: %s", args.stream_track)
-    logging.info("stream_locations: %s", args.stream_locations)
+    logger.debug("consumer_token: %s", args.consumer_token)
+    logger.debug("consumer_token_secret: %s", args.consumer_token_secret)
+    logger.debug("access_token: %s", args.access_token)
+    logger.debug("access_token_secret: %s", args.access_token_secret)
+    logger.debug("archive_path: %s", args.archive_path)
+    logger.debug("stream_track: %s", args.stream_track)
+    logger.debug("stream_locations: %s", args.stream_locations)
 
     if args.consumer_token is None or args.consumer_token_secret is None or \
             args.access_token is None or args.access_token_secret is None or \
@@ -37,7 +40,7 @@ access_token_secret, and archive_path to be set or overridden with --consumer-to
 --consumer-token-secret, --access-token, --access-token-secret, or --archive-path.''')
 
     # Start the Prometheus server on port 8000
-    logging.info("Starting the Prometheus server on port 8000")
+    logger.debug("Starting the Prometheus server on port 8000")
     prometheus_client.start_http_server(8000)
 
     # Create a Twitter object and authenticate to Twitter's API

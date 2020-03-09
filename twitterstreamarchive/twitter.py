@@ -7,6 +7,8 @@ import twitterstreamarchive.file_writer
 import twitterstreamarchive.transform_tweet
 from twitterstreamarchive.exceptions import LocalTwitterException
 
+logger = logging.getLogger('twitterstreamarchive.twitter')
+
 
 # override tweepy.StreamListener
 class MyStreamListener(tweepy.StreamListener):
@@ -80,13 +82,13 @@ class Twitter:
 
         # If track or locations is set then create a filtered stream, otherwise capture everything
         if track or locations:
-            logging.debug("Collecting a filtered stream with track: %s and locations: %s", track, locations)
+            logger.debug("Collecting a filtered stream with track: %s and locations: %s", track, locations)
             try:
                 my_stream.filter(track=track, locations=locations, stall_warnings=True)
             except Exception as ex:
                 raise LocalTwitterException("Unhandled streaming exception: %s" % ex) from None
         else:
-            logging.debug("Collecting an unfiltered stream")
+            logger.debug("Collecting an unfiltered stream")
             try:
                 my_stream.sample(stall_warnings=True)
             except Exception as ex:
