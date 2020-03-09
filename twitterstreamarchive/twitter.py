@@ -5,6 +5,7 @@ import tweepy
 from prometheus_client import Counter
 import twitterstreamarchive.file_writer
 import twitterstreamarchive.transform_tweet
+from twitterstreamarchive.exceptions import LocalTwitterException
 
 
 # override tweepy.StreamListener
@@ -28,6 +29,7 @@ class MyStreamListener(tweepy.StreamListener):
         raw_data = twitterstreamarchive.transform_tweet.convert_created_at(raw_data)
         # Save tweet to disk
         twitterstreamarchive.file_writer.write_gzip(self.archive_path, raw_data)
+        return
 
     def on_disconnect(self, notice):
         # Increment Prometheus tweet_disconnects counter by 1
@@ -76,18 +78,16 @@ class Twitter:
         if locations:
             locations = [float(x) for x in locations.split(",")]
 
-        # Create infinite loop to restart the stream if there is an exception
-        while True:
-            # If track or locations is set then create a filtered stream, otherwise capture everything
-            if track or locations:
-                logging.debug("Collecting a filtered stream with track: %s and locations: %s", track, locations)
-                try:
-                    my_stream.filter(track=track, locations=locations, stall_warnings=True)
-                except Exception as ex:
-                    logging.error("Unhandled streaming exception: %s", ex)
-            else:
-                logging.debug("Collecting an unfiltered stream")
-                try:
-                    my_stream.sample(stall_warnings=True)
-                except Exception as ex:
-                    logging.error("Unhandled streaming exception: %s", ex)
+        # If track or locations is set then create a filtered stream, otherwise capture everything
+        if track or locations:
+            logging.debug("Collecting a filtered stream with track: %s and locations: %s", track, locations)
+            try:
+                my_stream.filter(track=track, locations=locations, stall_warnings=True)
+            except Exception as ex:
+                raise LocalTwitterException("Unhandled streaming exception: %s" % ex) from None
+        else:
+            logging.debug("Collecting an unfiltered stream")
+            try:
+                my_stream.sample(stall_warnings=True)
+            except Exception as ex:
+                raise LocalTwitterException("Unhandled streaming exception: %s" % ex) from None
