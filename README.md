@@ -1,7 +1,7 @@
 # twitter-stream-archive
 
 ![](https://github.com/kevincoakley/twitter-stream-archive/workflows/Python%20package/badge.svg)
-![](https://github.com/kevincoakley/twitter-stream-archive/workflows/Docker%20Image%20CI/badge.svg)
+![Docker Test & Publish to ghcr.io](https://github.com/kevincoakley/twitter-stream-archive/workflows/Docker%20Test%20&%20Publish%20to%20ghcr.io/badge.svg)
 [![codecov](https://codecov.io/gh/kevincoakley/twitter-stream-archive/branch/master/graph/badge.svg)](https://codecov.io/gh/kevincoakley/twitter-stream-archive)
 
 Install twitter-stream-archive from source:
