@@ -1,4 +1,4 @@
-name: Docker
+name: Docker Test & Publish to ghcr.io
 
 on:
   push:
