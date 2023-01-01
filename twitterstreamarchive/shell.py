@@ -4,7 +4,7 @@ import sys
 import logging
 import prometheus_client
 import twitterstreamarchive.arguments
-from twitterstreamarchive.twitter import Twitter
+from twitterstreamarchive.twitter_v1 import TwitterV1
 
 
 def main():
@@ -47,11 +47,14 @@ access_token_secret, and archive_path to be set or overridden with --consumer-to
     prometheus_client.start_http_server(8000)
 
     # Create a Twitter object and authenticate to Twitter's API
-    twitter = Twitter(args.consumer_token, args.consumer_token_secret,
+    twitter = TwitterV1(args.consumer_token, args.consumer_token_secret,
                       args.access_token, args.access_token_secret)
 
-    # Start streaming Tweets
-    twitter.stream(args.archive_path, track=args.stream_track,
-                   locations=args.stream_locations)
+    try:
+        # Start streaming Tweets
+        twitter.stream(args.archive_path, track=args.stream_track,
+                    locations=args.stream_locations)
+    except Exception as ex:
+        return "Unhandled exception: %s" % ex
 
     return 0

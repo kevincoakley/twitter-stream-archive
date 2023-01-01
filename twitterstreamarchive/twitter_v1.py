@@ -11,7 +11,7 @@ logger = logging.getLogger('twitterstreamarchive.twitter')
 
 
 # override tweepy.Stream
-class MyStreamListener(tweepy.Stream):
+class MyStreamV1(tweepy.Stream):
 
     def __init__(self, consumer_token, consumer_token_secret, access_token, access_token_secret, archive_path):
         """
@@ -96,7 +96,7 @@ class MyStreamListener(tweepy.Stream):
         return
 
 
-class Twitter:
+class TwitterV1:
 
     def __init__(self, consumer_token, consumer_token_secret, access_token, access_token_secret):
         """
@@ -117,7 +117,7 @@ class Twitter:
         :param locations: list of lat/long box to filter (optional)
         """
         # Create a stream listener
-        my_stream = MyStreamListener(self.consumer_token, self.consumer_token_secret,
+        my_stream = MyStreamV1(self.consumer_token, self.consumer_token_secret,
                                      self.access_token, self.access_token_secret, archive_path)
 
         # Convert comma separated strings to a list

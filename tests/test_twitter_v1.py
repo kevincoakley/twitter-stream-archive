@@ -5,9 +5,9 @@ import mock
 from mock import patch
 import prometheus_client
 import tweepy
-import twitterstreamarchive.twitter
-from twitterstreamarchive.twitter import Twitter
-from twitterstreamarchive.twitter import MyStreamListener
+import twitterstreamarchive.twitter_v1
+from twitterstreamarchive.twitter_v1 import TwitterV1
+from twitterstreamarchive.twitter_v1 import MyStreamV1
 
 
 class TwitterTestCase(unittest.TestCase):
@@ -18,7 +18,7 @@ class TwitterTestCase(unittest.TestCase):
     @patch('twitterstreamarchive.file_writer.write_gzip')
     @patch('twitterstreamarchive.transform_tweet.convert_created_at')
     def test_my_stream_listener(self, mock_transform, mock_write_gzip):
-        my_stream_listener = MyStreamListener("consumer_token", "consumer_token_secret", "access_token", 
+        my_stream_listener = MyStreamV1("consumer_token", "consumer_token_secret", "access_token", 
                                               "access_token_secret", "/archive_path")
 
         mock_transform.return_value = "raw_data"
@@ -44,7 +44,7 @@ class TwitterTestCase(unittest.TestCase):
         #
 
         # Create a Twitter object and authenticate to Twitter's API
-        twitter_track = Twitter("consumer_token", "consumer_token_secret", "access_token", "access_token_secret")
+        twitter_track = TwitterV1("consumer_token", "consumer_token_secret", "access_token", "access_token_secret")
 
         # Start streaming Tweets
         twitter_track.stream("/archive_path", track="test,testing,python", locations="1,1,1,1")
@@ -57,7 +57,7 @@ class TwitterTestCase(unittest.TestCase):
             mock_stream.side_effect = Exception('filter exception')
 
             # Create a Twitter object and authenticate to Twitter's API
-            twitter_track = Twitter("consumer_token", "consumer_token_secret", "access_token", "access_token_secret")
+            twitter_track = TwitterV1("consumer_token", "consumer_token_secret", "access_token", "access_token_secret")
 
             # Start streaming Tweets
             twitter_track.stream("/archive_path", track="test,testing,python", locations="1,1,1,1")
@@ -71,7 +71,7 @@ class TwitterTestCase(unittest.TestCase):
         with self.assertRaises(twitterstreamarchive.exceptions.LocalTwitterException) as lte:
 
             # Create a Twitter object and authenticate to Twitter's API
-            twitter_sample = Twitter("consumer_token", "consumer_token_secret", "access_token", "access_token_secret")
+            twitter_sample = TwitterV1("consumer_token", "consumer_token_secret", "access_token", "access_token_secret")
 
             # Start streaming Tweets
             twitter_sample.stream("/archive_path")

@@ -6,7 +6,7 @@ import unittest
 from mock import patch
 import twitterstreamarchive.shell as shell
 
-from twitterstreamarchive.twitter import Twitter
+from twitterstreamarchive.twitter_v1 import TwitterV1
 
 
 class ShellTestCase(unittest.TestCase):
@@ -28,8 +28,8 @@ class ShellTestCase(unittest.TestCase):
             del os.environ["STREAM_LOCATIONS"]
 
     @patch('prometheus_client.start_http_server')
-    @patch.object(Twitter, 'stream')
-    @patch.object(Twitter, '__init__')
+    @patch.object(TwitterV1, 'stream')
+    @patch.object(TwitterV1, '__init__')
     def test_main(self, mock_twitter, mock_twitter_stream, mock_prom):
         mock_twitter.return_value = None
         mock_twitter_stream.return_value = None
