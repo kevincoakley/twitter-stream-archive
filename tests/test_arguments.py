@@ -5,7 +5,6 @@ import twitterstreamarchive.arguments as arguments
 
 
 class ArgumentsTestCase(unittest.TestCase):
-
     def setUp(self):
         pass
 

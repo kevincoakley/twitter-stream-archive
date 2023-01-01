@@ -19,10 +19,12 @@ def main():
     if args.debug is True:
         log_level = logging.DEBUG
 
-    logger = logging.getLogger('twitterstreamarchive')
+    logger = logging.getLogger("twitterstreamarchive")
     logger.setLevel(level=log_level)
     log_handler = logging.StreamHandler()
-    log_formatter = logging.Formatter('%(asctime)s %(levelname)s %(filename)s:%(lineno)d %(message)s')
+    log_formatter = logging.Formatter(
+        "%(asctime)s %(levelname)s %(filename)s:%(lineno)d %(message)s"
+    )
     log_handler.setFormatter(log_formatter)
     logger.addHandler(log_handler)
 
@@ -53,16 +55,21 @@ access_token_secret, and archive_path to be set or overridden with --consumer-to
 
     if args.api_version == "1":
         # Create a Twitter object and authenticate to Twitter's API
-        twitter = TwitterV1(args.consumer_token, args.consumer_token_secret,
-                        args.access_token, args.access_token_secret)
+        twitter = TwitterV1(
+            args.consumer_token,
+            args.consumer_token_secret,
+            args.access_token,
+            args.access_token_secret,
+        )
     elif args.api_version == "2":
         # Create a Twitter object and authenticate to Twitter's API
-        twitter = TwitterV2(args.bearer_token)    
+        twitter = TwitterV2(args.bearer_token)
 
     try:
         # Start streaming Tweets
-        twitter.stream(args.archive_path, track=args.stream_track,
-                    locations=args.stream_locations)
+        twitter.stream(
+            args.archive_path, track=args.stream_track, locations=args.stream_locations
+        )
     except Exception as ex:
         return "Unhandled exception: %s" % ex
 

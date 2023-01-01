@@ -2,7 +2,6 @@
 
 
 class LocalFileException(Exception):
-
     def __init__(self, arg):
         self.msg = arg
 
@@ -11,7 +10,6 @@ class LocalFileException(Exception):
 
 
 class LocalTwitterException(Exception):
-
     def __init__(self, arg):
         self.msg = arg
 

@@ -7,13 +7,19 @@ import twitterstreamarchive.file_writer
 import twitterstreamarchive.transform_tweet
 from twitterstreamarchive.exceptions import LocalTwitterException
 
-logger = logging.getLogger('twitterstreamarchive.twitter')
+logger = logging.getLogger("twitterstreamarchive.twitter")
 
 
 # override tweepy.Stream
 class MyStreamV1(tweepy.Stream):
-
-    def __init__(self, consumer_token, consumer_token_secret, access_token, access_token_secret, archive_path):
+    def __init__(
+        self,
+        consumer_token,
+        consumer_token_secret,
+        access_token,
+        access_token_secret,
+        archive_path,
+    ):
         """
         :param consumer_token: twitter api consumer token
         :param consumer_token_secret: twitter api consumer token secret
@@ -21,15 +27,27 @@ class MyStreamV1(tweepy.Stream):
         :param access_token_secret: twitter api access token secret
         :param archive_path: directory to save the twitter statuses to
         """
-        super().__init__(consumer_token, consumer_token_secret, access_token, access_token_secret)
+        super().__init__(
+            consumer_token, consumer_token_secret, access_token, access_token_secret
+        )
         self.archive_path = archive_path
         # Initialize the Prometheus tweet_count counter
         self.tweet_count = Counter("tweet_count", "Number of tweet_timeouts tweets")
-        self.tweet_disconnects = Counter("tweet_disconnects", "Number of twitter-stream-archive disconnects")
-        self.tweet_errors = Counter("tweet_errors", "Number of twitter-stream-archive errors")
-        self.tweet_exceptions = Counter("tweet_exceptions", "Number of twitter-stream-archive exceptions")
-        self.tweet_timeouts = Counter("tweet_timeouts", "Number of twitter-stream-archive timeouts")
-        self.tweet_warnings = Counter("tweet_warnings", "Number of twitter-stream-archive warnings")
+        self.tweet_disconnects = Counter(
+            "tweet_disconnects", "Number of twitter-stream-archive disconnects"
+        )
+        self.tweet_errors = Counter(
+            "tweet_errors", "Number of twitter-stream-archive errors"
+        )
+        self.tweet_exceptions = Counter(
+            "tweet_exceptions", "Number of twitter-stream-archive exceptions"
+        )
+        self.tweet_timeouts = Counter(
+            "tweet_timeouts", "Number of twitter-stream-archive timeouts"
+        )
+        self.tweet_warnings = Counter(
+            "tweet_warnings", "Number of twitter-stream-archive warnings"
+        )
 
     def on_data(self, raw_data):
         """
@@ -97,8 +115,9 @@ class MyStreamV1(tweepy.Stream):
 
 
 class TwitterV1:
-
-    def __init__(self, consumer_token, consumer_token_secret, access_token, access_token_secret):
+    def __init__(
+        self, consumer_token, consumer_token_secret, access_token, access_token_secret
+    ):
         """
         :param consumer_token: twitter api consumer token
         :param consumer_token_secret: twitter api consumer token secret
@@ -117,8 +136,13 @@ class TwitterV1:
         :param locations: list of lat/long box to filter (optional)
         """
         # Create a stream listener
-        my_stream = MyStreamV1(self.consumer_token, self.consumer_token_secret,
-                                     self.access_token, self.access_token_secret, archive_path)
+        my_stream = MyStreamV1(
+            self.consumer_token,
+            self.consumer_token_secret,
+            self.access_token,
+            self.access_token_secret,
+            archive_path,
+        )
 
         # Convert comma separated strings to a list
         if track:
@@ -129,11 +153,21 @@ class TwitterV1:
 
         # If track or locations is set then create a filtered stream, otherwise capture everything
         if track or locations:
-            logger.debug("Collecting a filtered stream with track: %s and locations: %s", track, locations)
+            logger.debug(
+                "Collecting a filtered stream with track: %s and locations: %s",
+                track,
+                locations,
+            )
             try:
                 my_stream.filter(track=track, locations=locations, stall_warnings=True)
             except Exception as ex:
-                raise LocalTwitterException("Unhandled streaming exception: %s" % ex) from None
+                raise LocalTwitterException(
+                    "Unhandled streaming exception: %s" % ex
+                ) from None
         else:
-            logger.debug("Collecting an unfiltered stream no longer supported by Twitter v1 API")
-            raise LocalTwitterException("Collecting an unfiltered stream no longer supported by Twitter v1 API")
+            logger.debug(
+                "Collecting an unfiltered stream no longer supported by Twitter v1 API"
+            )
+            raise LocalTwitterException(
+                "Collecting an unfiltered stream no longer supported by Twitter v1 API"
+            )

@@ -10,7 +10,6 @@ from twitterstreamarchive.twitter_v1 import TwitterV1
 
 
 class ShellTestCase(unittest.TestCase):
-
     def setUp(self):
         if "CONSUMER_TOKEN" in os.environ:
             del os.environ["CONSUMER_TOKEN"]
@@ -27,9 +26,9 @@ class ShellTestCase(unittest.TestCase):
         if "STREAM_LOCATIONS" in os.environ:
             del os.environ["STREAM_LOCATIONS"]
 
-    @patch('prometheus_client.start_http_server')
-    @patch.object(TwitterV1, 'stream')
-    @patch.object(TwitterV1, '__init__')
+    @patch("prometheus_client.start_http_server")
+    @patch.object(TwitterV1, "stream")
+    @patch.object(TwitterV1, "__init__")
     def test_main(self, mock_twitter, mock_twitter_stream, mock_prom):
         mock_twitter.return_value = None
         mock_twitter_stream.return_value = None
@@ -38,18 +37,31 @@ class ShellTestCase(unittest.TestCase):
         #
         # Test that an error message is returned when the required args are not passed
         #
-        with patch.object(sys, 'argv', ["twitter-stream-archive", "--consumer-token", "test"]):
+        with patch.object(
+            sys, "argv", ["twitter-stream-archive", "--consumer-token", "test"]
+        ):
             self.assertRegex(shell.main(), "^\ntwitter-stream-archive requires")
 
         #
         # Test with command line arguments
         #
-        with patch.object(sys, 'argv', ["twitter-stream-archive",
-                                        "--consumer-token", "test",
-                                        "--consumer-token-secret", "test",
-                                        "--access-token", "test",
-                                        "--access-token-secret", "test",
-                                        "--archive-path", "test"]):
+        with patch.object(
+            sys,
+            "argv",
+            [
+                "twitter-stream-archive",
+                "--consumer-token",
+                "test",
+                "--consumer-token-secret",
+                "test",
+                "--access-token",
+                "test",
+                "--access-token-secret",
+                "test",
+                "--archive-path",
+                "test",
+            ],
+        ):
             shell.main()
 
         #
@@ -61,11 +73,11 @@ class ShellTestCase(unittest.TestCase):
         os.environ["ACCESS_TOKEN_SECRET"] = "test"
         os.environ["ARCHIVE_PATH"] = "test"
 
-        with patch.object(sys, 'argv', ["twitter-stream-archive"]):
+        with patch.object(sys, "argv", ["twitter-stream-archive"]):
             shell.main()
 
         #
         # Test the debug command line argument
         #
-        with patch.object(sys, 'argv', ["twitter-stream-archive", "--debug"]):
+        with patch.object(sys, "argv", ["twitter-stream-archive", "--debug"]):
             shell.main()
