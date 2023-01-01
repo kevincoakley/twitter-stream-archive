@@ -16,6 +16,18 @@ def parse_arguments(args):
                         dest="debug",
                         action='store_true')
 
+    parser.add_argument("--api-version",
+                        metavar="api_version",
+                        dest="api_version",
+                        help="Twitter API Version.",
+                        default=os.environ.get('API_VERSION', "1")) 
+
+    parser.add_argument("--bearer-token",
+                        metavar="bearer_token",
+                        dest="bearer_token",
+                        help="Twitter API Bearer Token.",
+                        default=os.environ.get('BEARER_TOKEN', None))
+
     parser.add_argument("--consumer-token",
                         metavar="consumer_token",
                         dest="consumer_token",

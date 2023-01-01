@@ -5,6 +5,7 @@ import logging
 import prometheus_client
 import twitterstreamarchive.arguments
 from twitterstreamarchive.twitter_v1 import TwitterV1
+from twitterstreamarchive.twitter_v2 import TwitterV2
 
 
 def main():
@@ -26,6 +27,8 @@ def main():
     logger.addHandler(log_handler)
 
     # Print all arguments for debugging purposes
+    logger.debug("api_version: %s", args.api_version)
+    logger.debug("bearer_token: %s", args.bearer_token)
     logger.debug("consumer_token: %s", args.consumer_token)
     logger.debug("consumer_token_secret: %s", args.consumer_token_secret)
     logger.debug("access_token: %s", args.access_token)
@@ -34,6 +37,7 @@ def main():
     logger.debug("stream_track: %s", args.stream_track)
     logger.debug("stream_locations: %s", args.stream_locations)
 
+    """
     if args.consumer_token is None or args.consumer_token_secret is None or \
             args.access_token is None or args.access_token_secret is None or \
             args.archive_path is None:
@@ -41,14 +45,19 @@ def main():
 twitter-stream-archive requires consumer_token, consumer_token_secret, access_token,
 access_token_secret, and archive_path to be set or overridden with --consumer-token,
 --consumer-token-secret, --access-token, --access-token-secret, or --archive-path.''')
+    """
 
     # Start the Prometheus server on port 8000
     logger.debug("Starting the Prometheus server on port 8000")
     prometheus_client.start_http_server(8000)
 
-    # Create a Twitter object and authenticate to Twitter's API
-    twitter = TwitterV1(args.consumer_token, args.consumer_token_secret,
-                      args.access_token, args.access_token_secret)
+    if args.api_version == "1":
+        # Create a Twitter object and authenticate to Twitter's API
+        twitter = TwitterV1(args.consumer_token, args.consumer_token_secret,
+                        args.access_token, args.access_token_secret)
+    elif args.api_version == "2":
+        # Create a Twitter object and authenticate to Twitter's API
+        twitter = TwitterV2(args.bearer_token)    
 
     try:
         # Start streaming Tweets
