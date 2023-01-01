@@ -10,15 +10,18 @@ from twitterstreamarchive.exceptions import LocalTwitterException
 logger = logging.getLogger('twitterstreamarchive.twitter')
 
 
-# override tweepy.StreamListener
-class MyStreamListener(tweepy.StreamListener):
+# override tweepy.Stream
+class MyStreamListener(tweepy.Stream):
 
-    def __init__(self, archive_path, api=None):
+    def __init__(self, consumer_token, consumer_token_secret, access_token, access_token_secret, archive_path):
         """
+        :param consumer_token: twitter api consumer token
+        :param consumer_token_secret: twitter api consumer token secret
+        :param access_token: twitter api access token
+        :param access_token_secret: twitter api access token secret
         :param archive_path: directory to save the twitter statuses to
-        :param api: tweepy API object (optional)
         """
-        super().__init__(api)
+        super().__init__(consumer_token, consumer_token_secret, access_token, access_token_secret)
         self.archive_path = archive_path
         # Initialize the Prometheus tweet_count counter
         self.tweet_count = Counter("tweet_count", "Number of tweet_timeouts tweets")
@@ -102,12 +105,10 @@ class Twitter:
         :param access_token: twitter api access token
         :param access_token_secret: twitter api access token secret
         """
-        # Setup OAuth Authentication
-        auth = tweepy.OAuthHandler(consumer_token, consumer_token_secret)
-        auth.set_access_token(access_token, access_token_secret)
-
-        # Authenticate to Twitter
-        self.api = tweepy.API(auth)
+        self.consumer_token = consumer_token
+        self.consumer_token_secret = consumer_token_secret
+        self.access_token = access_token
+        self.access_token_secret = access_token_secret
 
     def stream(self, archive_path, track=None, locations=None):
         """
@@ -115,8 +116,9 @@ class Twitter:
         :param track: list of keywords to filter (optional)
         :param locations: list of lat/long box to filter (optional)
         """
-        my_stream_listener = MyStreamListener(archive_path)
-        my_stream = tweepy.Stream(auth=self.api.auth, listener=my_stream_listener)
+        # Create a stream listener
+        my_stream = MyStreamListener(self.consumer_token, self.consumer_token_secret,
+                                     self.access_token, self.access_token_secret, archive_path)
 
         # Convert comma separated strings to a list
         if track:
@@ -133,8 +135,5 @@ class Twitter:
             except Exception as ex:
                 raise LocalTwitterException("Unhandled streaming exception: %s" % ex) from None
         else:
-            logger.debug("Collecting an unfiltered stream")
-            try:
-                my_stream.sample(stall_warnings=True)
-            except Exception as ex:
-                raise LocalTwitterException("Unhandled streaming exception: %s" % ex) from None
+            logger.debug("Collecting an unfiltered stream no longer supported by Twitter v1 API")
+            raise LocalTwitterException("Collecting an unfiltered stream no longer supported by Twitter v1 API")
